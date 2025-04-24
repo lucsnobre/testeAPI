@@ -1,0 +1,138 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model tb_album {
+  id_album     Int      @id @default(autoincrement())
+  nome         String   @db.VarChar(177)
+  lancamento   DateTime
+  duracao      Time
+  numero_faixas Int
+  foto_capa    String   @db.VarChar(200)
+  id_genero    Int
+  id_premio    Int
+  id_artista   Int
+
+  tb_genero    tb_genero @relation(fields: [id_genero], references: [id_genero])
+  tb_premios   tb_premios @relation(fields: [id_premio], references: [id_premio])
+  tb_artista   tb_artista @relation(fields: [id_artista], references: [id])
+  tb_musica    tb_musica[]
+}
+
+model tb_genero {
+  id_genero Int @id @default(autoincrement())
+  nome      String @db.VarChar(100)
+
+  tb_album  tb_album[]
+}
+
+model tb_musica {
+  id               Int      @id @default(autoincrement())
+  nome             String   @db.VarChar(100)
+  data_lancamento  DateTime
+  duracao          Time
+  foto_capa        String   @db.VarChar(200)
+  letra            String   @db.Text
+  link             String   @db.VarChar(200)
+  id_premio        Int
+  id_produtor      Int
+  id_publico_alvo  Int
+
+  tb_premios       tb_premios @relation(fields: [id_premio], references: [id_premio])
+  tb_produtor      tb_produtor @relation(fields: [id_produtor], references: [id])
+  tb_publicoAlvo   tb_publicoAlvo @relation(fields: [id_publico_alvo], references: [id])
+  tb_reproducoes   tb_reproducoes[]
+  tb_avaliacoes    tb_avaliacoes[]
+}
+
+model tb_premios {
+  id_premio Int @id @default(autoincrement())
+  nome      String @db.VarChar(77)
+  categoria String @db.VarChar(77)
+  ano       DateTime
+
+  tb_album  tb_album[]
+  tb_musica tb_musica[]
+}
+
+model tb_streaming {
+  id             Int    @id @default(autoincrement())
+  tipo           String @db.VarChar(70)
+  quantidade     Int
+  link           String @db.VarChar(200)
+  id_plataforma  Int
+
+  tb_plataforma  tb_plataforma @relation(fields: [id_plataforma], references: [id])
+  tb_reproducoes tb_reproducoes[]
+}
+
+model tb_reproducoes {
+  id             Int    @id @default(autoincrement())
+  id_musica      Int
+  id_streaming   Int
+  plataforma     String @db.VarChar(70)
+
+  tb_musica      tb_musica @relation(fields: [id_musica], references: [id])
+  tb_streaming   tb_streaming @relation(fields: [id_streaming], references: [id])
+}
+
+model tb_avaliacoes {
+  id            Int    @id @default(autoincrement())
+  pontuacao     Int
+  comentario    String @db.VarChar(350)
+  id_musica     Int
+
+  tb_musica     tb_musica @relation(fields: [id_musica], references: [id])
+}
+
+model tb_gravadora {
+  id          Int    @id @default(autoincrement())
+  nome        String @db.VarChar(100)
+  fundacao    String @db.VarChar(45)
+  sede        String @db.VarChar(45)
+}
+
+model tb_plataforma {
+  id           Int    @id @default(autoincrement())
+  nome         String @db.VarChar(50)
+  empresa      String @db.VarChar(200)
+  pais_origem  String @db.VarChar(100)
+  logo         String @db.VarChar(177)
+
+  tb_streaming tb_streaming[]
+}
+
+model tb_produtor {
+  id             Int    @id @default(autoincrement())
+  nome           String @db.VarChar(77)
+  nacionalidade  String @db.VarChar(45)
+  data_nascimento DateTime
+
+  tb_musica      tb_musica[]
+}
+
+model tb_publicoAlvo {
+  id          Int    @id @default(autoincrement())
+  faixa_etaria Int
+  local        String @db.VarChar(100)
+
+  tb_musica   tb_musica[]
+}
+
+model tb_artista {
+  id               Int    @id @default(autoincrement())
+  nome             String @db.VarChar(100)
+  biografia        String @db.VarChar(350)
+  data_nascimento  DateTime
+  id_premio        Int
+  id_plataforma    Int
+
+  tb_premios       tb_premios @relation(fields: [id_premio], references: [id_premio])
+  tb_plataforma    tb_plataforma @relation(fields: [id_plataforma], references: [id])
+  tb_album         tb_album[]
+}
